@@ -12,37 +12,38 @@ F = primes(B)
 N = ARGV[0].to_i
 
 
-
-n = 0
-
 check = Hash.new(false)
-relations = []
+relations = RelationCollection.new
+target_nbr_of_relations = F.size
+
+next_k = Counter.new
 
 start_time = Time.new
 print "finding relations "
 STDOUT.flush
-catch(:done) do
-  k = 0
-loop do
-  k += 1
-  0.upto(10000) do |j|
-    r = sqrt(k*N).floor + j
-    r2 = (r**2)%N
-    smooth,res = smooth?(r2,F)
-    if smooth
-      b = res.to_bin
-      unless check[b]
-        check[b] = true
-        relations << Relation.new(r,res,N)
-        printf("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\bfinding relations %0.1f%%",(relations.size.to_f/(F.size*1.2)*100))
+workers = []
+1.times{
+  workers << Thread.new{
+  catch(:done) do
+  loop do
+    k = next_k.next
+    0.upto(100) do |j|
+      r = sqrt(k*N).floor + j
+      r2 = (r**2) % N
+      factorization = Factorization.factorize(r2,F)
+      if factorization
+        relations << Relation.new(r,factorization,N)
+        printf("\b"*30 + "finding relations %0.1f%%",(relations.size.to_f/target_nbr_of_relations*100))
         STDOUT.flush
-        throw :done if relations.size >= 1.2*F.size
+        throw :done if relations.size >= target_nbr_of_relations
       end
-      n+=1
     end
   end
-end
-end
+  end
+  }  
+}
+workers.each{|w| w.join }
+
 print "\n"
 
 File.open 'relations.txt','w' do |f|
@@ -72,7 +73,7 @@ File.open 'solution.txt','r' do |f|
     end
     a = r%N
     b = fact.sqrt.to_i%N
-    res = gcd(b-a,N)
+    res = N.gcd(b-a)
     if res > 1 and res < N
       p = N/res
       q = N/p

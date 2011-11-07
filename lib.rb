@@ -1,63 +1,29 @@
 require './factorization'
-# def primes(n)
-#   primes = []
-#   i = 0
-#   File.open('prim_2_24.txt','r') do |f|
-#     catch(:done) do
-#       loop do
-#         f.gets.scan(/\b\d+\b/).each do |p|
-#           throw :done if primes.size >= n
-#           primes << p.to_i
-#         end
-#       end
+require './relation'
+require './counter'
+require './relation_collection'
+
+# checks whether the number n is smooth with respect to the factorbase
+# def smooth?(n,factorbase)
+#   factorization = Factorization.new(factorbase)
+#   prod = 1 # factorization check
+#   for p in factorbase
+#     e = 0
+#     a = n
+#     while a % p == 0 do
+#       e += 1
+#       a = a / p
+#     end
+#     if e > 0
+#       prod *= p**e # just a checksum
+#       factorization.add(p,e)
 #     end
 #   end
-#   return primes
+#   return false unless prod == n
+#   factorization
 # end
 
-def gcd(a,b)
-  return a if b == 0
-  gcd(b, a % b)
-end
-
-def smooth?(int,primes)
-  res = Factorization.new(primes)
-  prod = 1
-  for p in primes
-    e = 0
-    a = int
-    while a % p == 0 do
-      e += 1
-      a = a / p
-    end
-    if e > 0
-      prod *= p**e
-      res[p] = e
-    end
-  end
-  # puts res.join(' * ')
-  [prod == int, res]
-end
-
-class Relation
-  attr_reader :r, :factorization
-  def initialize(r,factorization,mod)
-    @r,@factorization,@mod = r,factorization,mod
-  end
-  def to_s
-    "#{@r}^2 = #{@r**2} = #{@factorization} mod #{@mod}"
-  end
-  def eql? o
-    if o.is_a? Relation
-      return hash == o.hash
-    end
-    false
-  end
-  def hash
-    @factorization.to_bin.hash
-  end
-end
-
+# Generates the first n prime numbers
 def primes n
   primes = []
   i = 2
@@ -74,5 +40,14 @@ def primes n
       return primes if primes.size >= n
     end
     i += 1
+  end
+end
+
+
+class Numeric
+  # Extend all numeric types with a GCD operation
+  def gcd(b)
+    return self if b == 0
+    b.gcd(self % b)
   end
 end
