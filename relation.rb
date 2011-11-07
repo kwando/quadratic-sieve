@@ -1,3 +1,4 @@
+# Representation of a relation r^2 = p1^e1+p2^e2+...
 class Relation
   attr_reader :r, :factorization
   def initialize(r,factorization,mod)

@@ -1,4 +1,7 @@
+# Abstract representation of a factorized number
 class Factorization
+  # Calculates the factoriztion of the number n in the specified factorbase.
+  # Returns false if n can not be factored and a Factorization if n can be factored.
   def self.factorize(n, factorbase)
     factorization = Factorization.new(factorbase)
     prod = 1 # factorization check

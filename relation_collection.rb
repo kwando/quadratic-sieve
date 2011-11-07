@@ -6,22 +6,27 @@ class RelationCollection
     @relations = []
     @mutex = Mutex.new
   end
-  def << relation
+  
+  # adds the relation to if it's binary representation is uniqe. Executes block if relation is added.
+  def add relation, &block
     b = relation.factorization.to_bin
     @mutex.synchronize do
       if @uniqe[b]
         @relations << relation
         @uniqe[b] = false
       end
-      @relations.size
+      yield if block_given? # executes the given code block
     end
   end
+  
   def size
-    return @relations.size
+    @relations.size
   end
+  
   def each &block
     @mutex.synchronize{ @relations.each(&block) }
   end
+  
   def [] index
     @mutex.synchronize{ @relations[index] }
   end
